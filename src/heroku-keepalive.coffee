@@ -29,6 +29,11 @@ module.exports = (robot) ->
   wakeUpOffset = (60 * wakeUpTime[0] + wakeUpTime[1]) % (60 * 24)
   awakeMinutes = (60 * (sleepTime[0] + 24) + sleepTime[1] - wakeUpOffset) % (60 * 24)
 
+  robot.logger.info "wakeUpHour : #{wakeUpTime[0]}"
+  robot.logger.info "wakeUpMinutes : #{wakeUpTime[1]}"
+  robot.logger.info "sleepHour : #{sleepTime[0]}"
+  robot.logger.info "sleepMinutes : #{sleepTime[1]}"
+
   keepaliveUrl = process.env.HUBOT_HEROKU_KEEPALIVE_URL or process.env.HEROKU_URL
   if keepaliveUrl and not keepaliveUrl.match(/\/$/)
     keepaliveUrl = "#{keepaliveUrl}/"
@@ -37,7 +42,7 @@ module.exports = (robot) ->
   keepaliveInterval = if process.env.HUBOT_HEROKU_KEEPALIVE_INTERVAL?
                         parseFloat process.env.HUBOT_HEROKU_KEEPALIVE_INTERVAL
                       else
-                        5
+                        1
 
   unless keepaliveUrl?
     robot.logger.error "hubot-heroku-alive included, but missing HUBOT_HEROKU_KEEPALIVE_URL. `heroku config:set HUBOT_HEROKU_KEEPALIVE_URL=$(heroku apps:info -s  | grep web-url | cut -d= -f2)`"
@@ -53,6 +58,9 @@ module.exports = (robot) ->
 
       now = new Date()
       elapsedMinutes = (60 * (now.getHours() + 24) + now.getMinutes() - wakeUpOffset) % (60 * 24)
+      robot.logger.info "now.getHours : #{now.getHours()}"
+      robot.logger.info "now.getMinutes : #{now.getMinutes()}"
+
 
       if elapsedMinutes < awakeMinutes
         client = robot.http("#{keepaliveUrl}heroku/keepalive")
